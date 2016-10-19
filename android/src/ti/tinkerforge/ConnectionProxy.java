@@ -16,6 +16,8 @@ import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.titanium.TiApplication;
+import org.appcelerator.titanium.TiProperties;
 
 import com.tinkerforge.AlreadyConnectedException;
 import com.tinkerforge.IPConnection;
@@ -24,16 +26,54 @@ import com.tinkerforge.NotConnectedException;
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class ConnectionProxy extends KrollProxy {
+	private final class EnumeratedHandler implements
+			IPConnection.EnumerateListener {
+		public void enumerate(String uid, String connectedUid, char position,
+				short[] hardwareVersion, short[] firmwareVersion,
+				int deviceIdentifier, short enumerationType) {
+
+			KrollDict res = new KrollDict();
+			res.put("UID", uid);
+			res.put("Enumeration Type", enumerationType);
+			if (enumerationType == IPConnection.ENUMERATION_TYPE_DISCONNECTED) {
+				res.put("connected", IPConnection.ENUMERATION_TYPE_DISCONNECTED);
+
+			} else {
+				res.put("connected", IPConnection.ENUMERATION_TYPE_CONNECTED);
+				res.put("connectedUID", connectedUid);
+				res.put("position", position);
+				res.put("hardwareVersion", hardwareVersion[0] + "."
+						+ hardwareVersion[1] + "." + hardwareVersion[2]);
+				res.put("firmwareVersion", firmwareVersion[0] + "."
+						+ firmwareVersion[1] + "." + firmwareVersion[2]);
+				res.put("deviceIdentifier ", deviceIdentifier);
+			}
+			devices.put(uid, res);
+			if (proxy.hasListeners("found")) {
+				proxy.fireEvent("found", res);
+			}
+			if (onLoadCallback != null)
+				onLoadCallback.call(getKrollObject(), res);
+		}
+	}
+
 	// Standard Debugging variables
 	private static final String LCAT = "TiFo";
+	private static final String TF = "TINKERFORGE_ENDPOINT";
+
 	private String ip = "localhost";
 	private int port = 4223;
 	private KrollFunction onLoadCallback;
 	private IPConnection ipcon;
+	final KrollProxy proxy;
 	private HashMap<String, KrollDict> devices;
+	TiProperties props;
 
-	public ConnectionProxy() {
+	public ConnectionProxy(KrollProxy proxy) {
 		super();
+		this.proxy = proxy;
+		this.props = TiApplication.getInstance().getAppProperties();
+
 	}
 
 	// Handle creation options
@@ -45,6 +85,8 @@ public class ConnectionProxy extends KrollProxy {
 		}
 		if (options.containsKeyAndNotNull("port")) {
 			port = options.getInt("port");
+		} else if (ip == null) {
+			getCacheEndpointFromProps();
 		}
 		if (options.containsKeyAndNotNull("onload")) {
 			Object o = options.get("onload");
@@ -52,6 +94,19 @@ public class ConnectionProxy extends KrollProxy {
 				onLoadCallback = (KrollFunction) o;
 		}
 		connect();
+	}
+
+	private void cacheEndpointToProps() {
+		this.props.setString(TF, this.ip + ":" + this.port);
+	}
+
+	private void getCacheEndpointFromProps() {
+		String ep = this.props.getString(TF, this.ip + ":" + this.port);
+		String[] parts = ep.split(":");
+		if (parts != null) {
+			this.ip = parts[0];
+			this.port = Integer.parseInt(parts[1]);
+		}
 	}
 
 	private void connect() {
@@ -65,35 +120,9 @@ public class ConnectionProxy extends KrollProxy {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
+		cacheEndpointToProps();
 		// Register enumerate listener and print incoming information
-		ipcon.addEnumerateListener(new IPConnection.EnumerateListener() {
-			public void enumerate(String uid, String connectedUid,
-					char position, short[] hardwareVersion,
-					short[] firmwareVersion, int deviceIdentifier,
-					short enumerationType) {
-				KrollDict res = new KrollDict();
-				res.put("UID", uid);
-				res.put("Enumeration Type", enumerationType);
-				if (enumerationType == IPConnection.ENUMERATION_TYPE_DISCONNECTED) {
-					res.put("connected",
-							IPConnection.ENUMERATION_TYPE_DISCONNECTED);
-
-				} else {
-					res.put("connected",
-							IPConnection.ENUMERATION_TYPE_CONNECTED);
-					res.put("connectedUID", connectedUid);
-					res.put("position", position);
-					res.put("hardwareVersion", hardwareVersion[0] + "."
-							+ hardwareVersion[1] + "." + hardwareVersion[2]);
-					res.put("firmwareVersion", firmwareVersion[0] + "."
-							+ firmwareVersion[1] + "." + firmwareVersion[2]);
-					res.put("deviceIdentifier ", deviceIdentifier);
-				}
-				devices.put(uid, res);
-				onLoadCallback.call(getKrollObject(), res);
-			}
-		});
+		ipcon.addEnumerateListener(new EnumeratedHandler());
 
 		try {
 			ipcon.enumerate();

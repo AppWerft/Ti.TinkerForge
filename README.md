@@ -15,15 +15,8 @@ var TF = require("ti.tinkerforge");
 var connection = TF.createConnection("192.168.3.4:4223");
 The last endpoint (combination of host and port) will cached in properties. Therefore you can dismiss in next requests.
 
-connection.addEventListener("disconnected",function(con) {
-});
-connection.addEventListener("connected",function(con) {
-	console.log(con);
-	connection.authenticate("SehrGeheim"); // optional
-	connection.enumerate();
-});
-connection.addEventListener("enumerated",function(e) {
-	// every module send an event, maybe you can collect in an array
+connection.addEventListener("found",function(e) {
+	// every bricklet send an event, maybe you can collect in an array
 	console.log(e)
 });
 ```
@@ -54,12 +47,13 @@ Now we can communicate with bricklets. All bricklets have the same host/port, bu
 
 
 ##BrickletTemperature
+With this simple bricklet we can measure the temperature. We have simple getter, a periodically "getter" and a  treshold.
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_temperature_tilted_600.jpg" width=400/>
 
 ###Simple getter:
 ```javascript
 var TF = require("ti.tinkerforge");
-var IpConn = TF.createConnection("192.168.3.4:4223");
+var IpConn = TF.createConnection();
 var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
 console.log(BrickletTemperature.getTemperature());
 IpConn.disconnect();
