@@ -20,24 +20,24 @@ var connection = TF.createConnection({
 	});
 ```
 The connection has seven paramters:
-###uid: 
+####uid: 
 The UID of the device.
 ###connectedUID: 
 UID where the device is connected to. For a Bricklet this will be a UID of the Brick where it is connected to. For a Brick it will be the UID of the bottom Master Brick in the stack. For the bottom Master Brick in a stack this will be "0". With this information it is possible to reconstruct the complete network topology.
 
-###position: 
+####position: 
 For Bricks: '0' - '8' (position in stack). For Bricklets: 'a' - 'd' (position on Brick).
 
-###hardwareVersion: 
+####hardwareVersion: 
 Major, minor and release number for hardware version.
 
-###firmwareVersion: 
+####firmwareVersion: 
 Major, minor and release number for firmware version.
 
-###deviceIdentifier:
+####deviceIdentifier:
 A number that represents the device.
 
-###enumerationType: 
+####enumerationType: 
 Type of enumeration.
 
-[More about this paramters](http://www.tinkerforge.com/en/doc/Software/IPConnection_Java.html#ipcon-java).
+[More about this parameters](http://www.tinkerforge.com/en/doc/Software/IPConnection_Java.html#ipcon-java).
