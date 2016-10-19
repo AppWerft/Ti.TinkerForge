@@ -10,6 +10,7 @@ package ti.tinkerforge;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
@@ -29,6 +30,7 @@ public class ConnectionProxy extends KrollProxy {
 	private int port = 4223;
 	private KrollFunction onLoadCallback;
 	private IPConnection ipcon;
+	private HashMap<String, KrollDict> devices;
 
 	public ConnectionProxy() {
 		super();
@@ -88,6 +90,7 @@ public class ConnectionProxy extends KrollProxy {
 							+ firmwareVersion[1] + "." + firmwareVersion[2]);
 					res.put("deviceIdentifier ", deviceIdentifier);
 				}
+				devices.put(uid, res);
 				onLoadCallback.call(getKrollObject(), res);
 			}
 		});

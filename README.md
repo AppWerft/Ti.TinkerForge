@@ -81,7 +81,31 @@ BrickletTemperature.setDebouncePeriod(10000);
 BrickletTemperature.setTemperatureThreshold('>30',function(e){
 	console.log("It is too hot, we need air conditioning!");
 });
+```
 
+##RGBLED
+```javascript
+var TF = require("ti.tinkerforge");
+var IpConn = TF.createConnection("192.168.3.4",4223);
+var BrickletRGBLED = TF.createBrickletTemperatur(UID, IpConn);
+BrickletRGBLED.setRGBValue("#FF0000");
+var rgb = BrickletRGBLED.getRGBValue();
+console.log(rgb);
+});
+```
+##BrickletSolidStateRelay
+```javascript
+var TF = require("ti.tinkerforge");
+var IpConn = TF.createConnection("192.168.3.4",4223);
+var BrickletSolidStateRelay = TF.createBrickletSolidStateRelay(UID, IpConn);
+BrickletSolidStateRelay.setState(true);
+setTimeout(function(){
+	BrickletSolidStateRelay.setState(false);
+	}, 10000);
 
 ```
+
+
+
+
 
