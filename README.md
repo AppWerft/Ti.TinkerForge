@@ -77,7 +77,7 @@ var TF = require("ti.tinkerforge");
 var IpConn = TF.createConnection("192.168.3.4",4223);
 var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
 // Get threshold callbacks with a debounce time of 10 seconds (10000ms)
-BrickletTemperature.etDebouncePeriod(10000);
+BrickletTemperature.setDebouncePeriod(10000);
 BrickletTemperature.setTemperatureCallbackThreshold('>30',function(e){
 	console.log("It is too hot, we need air conditioning!");
 });
