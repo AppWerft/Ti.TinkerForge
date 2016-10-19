@@ -51,11 +51,28 @@ Now we can communicate with bricklets. All bricklets have the same host/port, bu
 
 
 ##BrickletTemperature
-First we can connect to Tinkerforge and enumerate all stuff:
+
+###Simple getter:
 ```javascript
 var TF = require("ti.tinkerforge");
+var IpConn = TF.createConnection("192.168.3.4",4223);
+var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
+console.log(BrickletTemperature.getTemperature());
+IpConn.disconnect();
+```
 
-var BrickletTemperature = TF.createBrickletTemperatur(UID, TF.createConnection("192.168.3.4",4223));
+###Periodical
+```javascript
+var TF = require("ti.tinkerforge");
+var IpConn = TF.createConnection("192.168.3.4",4223);
+var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
+BrickletTemperature.setInterval(function(e){
+	console.log(e);
+}, 1000);
+
+```
+
+
 // Get threshold callbacks with a debounce time of 10 seconds (10000ms)
 BrickletTemperature.setDebouncePeriod(10000);
 
