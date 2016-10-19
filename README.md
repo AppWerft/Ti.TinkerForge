@@ -7,6 +7,7 @@ Titanium module for communication with [TinkerForge](http://tinkerforge.com).
 
 ##Usage
 
+###Connect to device
 First we can connect to Tinkerforge and enumerate all stuff:
 ```javascript
 var TF = require("ti.tinkerforge");
@@ -16,8 +17,7 @@ var connection = TF.createConnection({
 	onload : function(e) {
 		console.log("Connected UID:     " + e.uid);
 		console.log("Device Identifier: " + e.identifier);
-		
-		
 	});
 
 ```
+
