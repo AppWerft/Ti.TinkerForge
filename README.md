@@ -73,7 +73,3 @@ BrickletTemperature.setInterval(function(e){
 ```
 
 
-// Get threshold callbacks with a debounce time of 10 seconds (10000ms)
-BrickletTemperature.setDebouncePeriod(10000);
-
-
