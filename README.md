@@ -17,6 +17,7 @@ var connection = TF.createConnection({
 	onload : function(e) {
 		console.log("Connected UID:     " + e.uid);
 		console.log("Device Identifier: " + e.identifier);
+		connection.disconnect();
 	});
 
 ```

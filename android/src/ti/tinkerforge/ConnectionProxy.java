@@ -8,97 +8,97 @@
  */
 package ti.tinkerforge;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+
 import org.appcelerator.kroll.KrollDict;
+import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
-import org.appcelerator.titanium.TiC;
-import org.appcelerator.titanium.util.Log;
-import org.appcelerator.titanium.util.TiConfig;
-import org.appcelerator.titanium.util.TiConvert;
-import org.appcelerator.titanium.proxy.TiViewProxy;
-import org.appcelerator.titanium.view.TiCompositeLayout;
-import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
-import org.appcelerator.titanium.view.TiUIView;
 
-import android.app.Activity;
-
+import com.tinkerforge.AlreadyConnectedException;
+import com.tinkerforge.IPConnection;
+import com.tinkerforge.NotConnectedException;
 
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
-@Kroll.proxy(creatableInModule=TinkerforgeModule.class)
-public class ConnectionProxy extends TiViewProxy
-{
+@Kroll.proxy(creatableInModule = TinkerforgeModule.class)
+public class ConnectionProxy extends KrollProxy {
 	// Standard Debugging variables
-	private static final String LCAT = "ExampleProxy";
-	private static final boolean DBG = TiConfig.LOGD;
+	private static final String LCAT = "TiFo";
+	private String ip = "localhost";
+	private int port = 4223;
+	private KrollFunction onLoadCallback;
+	private IPConnection ipcon;
 
-	private class ExampleView extends TiUIView
-	{
-		public ExampleView(TiViewProxy proxy) {
-			super(proxy);
-			LayoutArrangement arrangement = LayoutArrangement.DEFAULT;
-
-			if (proxy.hasProperty(TiC.PROPERTY_LAYOUT)) {
-				String layoutProperty = TiConvert.toString(proxy.getProperty(TiC.PROPERTY_LAYOUT));
-				if (layoutProperty.equals(TiC.LAYOUT_HORIZONTAL)) {
-					arrangement = LayoutArrangement.HORIZONTAL;
-				} else if (layoutProperty.equals(TiC.LAYOUT_VERTICAL)) {
-					arrangement = LayoutArrangement.VERTICAL;
-				}
-			}
-			setNativeView(new TiCompositeLayout(proxy.getActivity(), arrangement));
-		}
-
-		@Override
-		public void processProperties(KrollDict d)
-		{
-			super.processProperties(d);
-		}
-	}
-
-
-	// Constructor
-	public ConnectionProxy()
-	{
+	public ConnectionProxy() {
 		super();
-	}
-
-	@Override
-	public TiUIView createView(Activity activity)
-	{
-		TiUIView view = new ExampleView(this);
-		view.getLayoutParams().autoFillsHeight = true;
-		view.getLayoutParams().autoFillsWidth = true;
-		return view;
 	}
 
 	// Handle creation options
 	@Override
-	public void handleCreationDict(KrollDict options)
-	{
+	public void handleCreationDict(KrollDict options) {
 		super.handleCreationDict(options);
-
-		if (options.containsKey("message")) {
-			Log.d(LCAT, "example created with message: " + options.get("message"));
+		if (options.containsKeyAndNotNull("ip")) {
+			ip = options.getString("ip");
 		}
+		if (options.containsKeyAndNotNull("port")) {
+			port = options.getInt("port");
+		}
+		if (options.containsKeyAndNotNull("onload")) {
+			Object o = options.get("onload");
+			if (o instanceof KrollFunction)
+				onLoadCallback = (KrollFunction) o;
+		}
+		connect();
 	}
 
-	// Methods
+	private void connect() {
+		this.ipcon = new IPConnection();
+		try {
+			ipcon.connect(ip, port);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (AlreadyConnectedException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		// Register enumerate listener and print incoming information
+		ipcon.addEnumerateListener(new IPConnection.EnumerateListener() {
+			public void enumerate(String uid, String connectedUid,
+					char position, short[] hardwareVersion,
+					short[] firmwareVersion, int deviceIdentifier,
+					short enumerationType) {
+				KrollDict res = new KrollDict();
+				res.put("UID", uid);
+				res.put("Enumeration Type", enumerationType);
+				res.put("connectedUID", connectedUid);
+				res.put("position", position);
+				res.put("hardwareVersion", hardwareVersion[0] + "."
+						+ hardwareVersion[1] + "." + hardwareVersion[2]);
+				res.put("firmwareVersion", firmwareVersion[0] + "."
+						+ firmwareVersion[1] + "." + firmwareVersion[2]);
+				res.put("deviceIdentifier ", deviceIdentifier);
+				onLoadCallback.call(getKrollObject(), res);
+			}
+		});
+
+		try {
+			ipcon.enumerate();
+		} catch (NotConnectedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	@Kroll.method
-	public void printMessage(String message)
-	{
-		Log.d(LCAT, "printing message: " + message);
-	}
-
-
-	@Kroll.getProperty @Kroll.method
-	public String getMessage()
-	{
-        return "Hello World from my module";
-	}
-
-	@Kroll.setProperty @Kroll.method
-	public void setMessage(String message)
-	{
-	    Log.d(LCAT, "Tried setting module message to: " + message);
+	public void disconnect() {
+		try {
+			this.ipcon.disconnect();
+		} catch (NotConnectedException e) {
+			e.printStackTrace();
+		}
 	}
 }
