@@ -85,6 +85,7 @@ BrickletTemperature.setTemperatureThreshold('>30',function(e){
 ```
 
 ##RGBLED
+<img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_rgb_led_tilted_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
 var IpConn = TF.createConnection("192.168.3.4",4223);
@@ -95,6 +96,7 @@ console.log(rgb);
 });
 ```
 ##BrickletSolidStateRelay
+<img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_ssr_w_ssr_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
 var IpConn = TF.createConnection("192.168.3.4",4223);
