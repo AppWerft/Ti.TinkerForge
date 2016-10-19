@@ -51,6 +51,7 @@ Now we can communicate with bricklets. All bricklets have the same host/port, bu
 
 
 ##BrickletTemperature
+<img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_temperature_tilted_600.jpg" width=400/>
 
 ###Simple getter:
 ```javascript
