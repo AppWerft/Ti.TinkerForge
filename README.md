@@ -47,4 +47,16 @@ Type of enumeration.
 
 [More about this parameters](http://www.tinkerforge.com/en/doc/Software/IPConnection_Java.html#ipcon-java).
 
+Now we can communicate with bricklets. All bricklets have the same host/port, but different uid. Therefore you have to request the uids with enumerate. 
+
+
+##BrickletTemperature
+First we can connect to Tinkerforge and enumerate all stuff:
+```javascript
+var TF = require("ti.tinkerforge");
+
+var BrickletTemperature = TF.createBrickletTemperatur(UID, TF.createConnection("192.168.3.4",4223));
+// Get threshold callbacks with a debounce time of 10 seconds (10000ms)
+BrickletTemperature.setDebouncePeriod(10000);
+
 
