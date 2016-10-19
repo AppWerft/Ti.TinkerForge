@@ -53,7 +53,7 @@ public class ConnectionProxy extends KrollProxy {
 	}
 
 	private void connect() {
-		this.ipcon = new IPConnection();
+		ipcon = new IPConnection();
 		try {
 			ipcon.connect(ip, port);
 		} catch (UnknownHostException e) {
@@ -73,13 +73,21 @@ public class ConnectionProxy extends KrollProxy {
 				KrollDict res = new KrollDict();
 				res.put("UID", uid);
 				res.put("Enumeration Type", enumerationType);
-				res.put("connectedUID", connectedUid);
-				res.put("position", position);
-				res.put("hardwareVersion", hardwareVersion[0] + "."
-						+ hardwareVersion[1] + "." + hardwareVersion[2]);
-				res.put("firmwareVersion", firmwareVersion[0] + "."
-						+ firmwareVersion[1] + "." + firmwareVersion[2]);
-				res.put("deviceIdentifier ", deviceIdentifier);
+				if (enumerationType == IPConnection.ENUMERATION_TYPE_DISCONNECTED) {
+					res.put("connected",
+							IPConnection.ENUMERATION_TYPE_DISCONNECTED);
+
+				} else {
+					res.put("connected",
+							IPConnection.ENUMERATION_TYPE_CONNECTED);
+					res.put("connectedUID", connectedUid);
+					res.put("position", position);
+					res.put("hardwareVersion", hardwareVersion[0] + "."
+							+ hardwareVersion[1] + "." + hardwareVersion[2]);
+					res.put("firmwareVersion", firmwareVersion[0] + "."
+							+ firmwareVersion[1] + "." + firmwareVersion[2]);
+					res.put("deviceIdentifier ", deviceIdentifier);
+				}
 				onLoadCallback.call(getKrollObject(), res);
 			}
 		});
@@ -87,7 +95,6 @@ public class ConnectionProxy extends KrollProxy {
 		try {
 			ipcon.enumerate();
 		} catch (NotConnectedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
