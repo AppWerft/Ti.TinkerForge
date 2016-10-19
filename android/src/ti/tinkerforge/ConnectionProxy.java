@@ -25,7 +25,7 @@ import android.app.Activity;
 
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule=TinkerforgeModule.class)
-public class ExampleProxy extends TiViewProxy
+public class ConnectionProxy extends TiViewProxy
 {
 	// Standard Debugging variables
 	private static final String LCAT = "ExampleProxy";
@@ -57,7 +57,7 @@ public class ExampleProxy extends TiViewProxy
 
 
 	// Constructor
-	public ExampleProxy()
+	public ConnectionProxy()
 	{
 		super();
 	}

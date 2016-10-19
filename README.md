@@ -13,8 +13,11 @@ var TF = require("ti.tinkerforge");
 var connection = TF.createConnection({
 	ip : "192.168.3.4",
 	port : 4223,
-	onload : function() {
-	
+	onload : function(e) {
+		console.log("Connected UID:     " + e.uid);
+		console.log("Device Identifier: " + e.identifier);
+		
+		
 	});
 
 ```
