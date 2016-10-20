@@ -26,11 +26,11 @@ var IPconn = TF.createConnection(ENDPOINT);
 The IPconn has to events:
 
 ```javascript
-IPconn.addEventListener("enumerated",function(e) {
-	// every bricklet send an event, maybe you can collect in an array
+IPconn.addEventListener("connected",function(e) {
 	console.log(e)
 });
-IPconn.addEventListener("connected",function(e) {
+IPconn.addEventListener("enumerated",function(e) {
+	// every bricklet send an event, maybe you can collect in an array
 	console.log(e)
 });
 
@@ -69,7 +69,8 @@ Type of enumeration.
 
 [More about this parameters](http://www.tinkerforge.com/en/doc/Software/IPConnection_Java.html#ipcon-java).
 
-Now we can communicate with bricklets. All bricklets have the same host/port, but different uid. Therefore you have to request the uids with enumerate. 
+Now we have all uids from all bricklets and we can communicate with bricklets. 
+All bricklets have the same host/port, but different uid. Therefore address the bricklets by UUID. 
 
 ##BrickletTemperature
 With this simple bricklet we can measure the temperature. We have simple getter, a periodically "getter" and a  treshold.
