@@ -24,9 +24,8 @@ Alternatively you can a second parameter (after endpoint) as callback.
 var TF = require("ti.tinkerforge");
 var ENDPOINT = "192.168.3.4:4223";
 var IPconnection = TF.createConnection(ENDPOINT,function(){
-
 });
-
+```
 The connection enumerator has seven parameters:
 ####uid: 
 The UID of the device.
