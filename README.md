@@ -7,6 +7,15 @@ The TinkerForge system is a collection of sensor and actors you can access with 
 
 ##Usage
 
+###Constants
+```javascript
+var TF = require("ti.tinkerforge");
+TF.CONNECT_REASON_REQUEST
+TF.CONNECT_REASON_AUTO_RECONNECT
+TF.ENUMERATION_TYPE_CONNECTED
+TF.ENUMERATION_TYPE_DISCONNECTED
+```
+
 ###Connect to device
 First we have to connect to Tinkerforge and enumerate all connected bricklets:
 ```javascript

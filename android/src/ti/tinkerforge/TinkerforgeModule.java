@@ -10,51 +10,48 @@ package ti.tinkerforge;
 
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-
-import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiApplication;
 
+import com.tinkerforge.IPConnection;
 
-@Kroll.module(name="Tinkerforge", id="ti.tinkerforge")
-public class TinkerforgeModule extends KrollModule
-{
+@Kroll.module(name = "Tinkerforge", id = "ti.tinkerforge")
+public class TinkerforgeModule extends KrollModule {
 
-	// Standard Debugging variables
 	private static final String LCAT = "TinkerforgeModule";
-	private static final boolean DBG = TiConfig.LOGD;
+	@Kroll.constant
+	public static final int CONNECT_REASON_REQUEST = IPConnection.CONNECT_REASON_REQUEST;
+	@Kroll.constant
+	public static final int CONNECT_REASON_AUTO_RECONNECT = IPConnection.CONNECT_REASON_AUTO_RECONNECT;
+	@Kroll.constant
+	public static final int ENUMERATION_TYPE_CONNECTED = IPConnection.ENUMERATION_TYPE_CONNECTED;
+	@Kroll.constant
+	public static final int ENUMERATION_TYPE_DISCONNECTED = IPConnection.ENUMERATION_TYPE_DISCONNECTED;
 
-	// You can define constants with @Kroll.constant, for example:
-	// @Kroll.constant public static final String EXTERNAL_NAME = value;
-
-	public TinkerforgeModule()
-	{
+	public TinkerforgeModule() {
 		super();
 	}
 
 	@Kroll.onAppCreate
-	public static void onAppCreate(TiApplication app)
-	{
+	public static void onAppCreate(TiApplication app) {
 		Log.d(LCAT, "inside onAppCreate");
-		// put module init code that needs to run when the application is created
+		// put module init code that needs to run when the application is
+		// created
 	}
 
 	// Methods
 	@Kroll.method
-	public String example()
-	{
+	public String example() {
 		Log.d(LCAT, "example called");
 		return "hello world";
 	}
 
 	// Properties
 	@Kroll.getProperty
-	public String getExampleProp()
-	{
+	public String getExampleProp() {
 		Log.d(LCAT, "get example property");
 		return "hello world";
 	}
-
 
 	@Kroll.setProperty
 	public void setExampleProp(String value) {
@@ -62,4 +59,3 @@ public class TinkerforgeModule extends KrollModule
 	}
 
 }
-

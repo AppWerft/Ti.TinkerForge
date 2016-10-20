@@ -22,10 +22,30 @@ import org.appcelerator.titanium.TiProperties;
 import com.tinkerforge.AlreadyConnectedException;
 import com.tinkerforge.IPConnection;
 import com.tinkerforge.NotConnectedException;
+import com.tinkerforge.TinkerforgeException;
 
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class ConnectionProxy extends KrollProxy {
+	private final class ConnectedHandler implements
+			IPConnection.ConnectedListener {
+		public void connected(short connectReason) {
+			switch (connectReason) {
+			case IPConnection.CONNECT_REASON_REQUEST:
+				break;
+
+			case IPConnection.CONNECT_REASON_AUTO_RECONNECT:
+				break;
+			}
+
+			try {
+				ipcon.authenticate("");
+			} catch (TinkerforgeException e) {
+				return;
+			}
+		}
+	}
+
 	private final class EnumeratedHandler implements
 			IPConnection.EnumerateListener {
 		public void enumerate(String uid, String connectedUid, char position,
@@ -57,8 +77,6 @@ public class ConnectionProxy extends KrollProxy {
 		}
 	}
 
-	// Standard Debugging variables
-	private static final String LCAT = "TiFo";
 	private static final String TF = "TINKERFORGE_ENDPOINT";
 
 	private String ip = "localhost";
@@ -121,7 +139,8 @@ public class ConnectionProxy extends KrollProxy {
 			e.printStackTrace();
 		}
 		cacheEndpointToProps();
-		// Register enumerate listener and print incoming information
+
+		ipcon.addConnectedListener(new ConnectedHandler());
 		ipcon.addEnumerateListener(new EnumeratedHandler());
 
 		try {
