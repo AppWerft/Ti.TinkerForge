@@ -14,8 +14,10 @@ import java.util.HashMap;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollFunction;
+import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
+import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
 
@@ -27,6 +29,17 @@ import com.tinkerforge.TinkerforgeException;
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class ConnectionProxy extends KrollProxy {
+
+	private String ip = "localhost";
+	private int port = 4223;
+	private KrollFunction onEnumeratedCallback;
+	private KrollFunction onConnectedCallback;
+	private IPConnection ipcon;
+	final KrollProxy proxy;
+	final public String LCAT = "TiFo 🚧";
+	private HashMap<String, KrollDict> devices;
+	TiProperties props;
+
 	private final class ConnectedHandler implements
 			IPConnection.ConnectedListener {
 		public void connected(short connectReason) {
@@ -69,23 +82,13 @@ public class ConnectionProxy extends KrollProxy {
 				res.put("deviceIdentifier ", deviceIdentifier);
 			}
 			devices.put(uid, res);
-			if (proxy.hasListeners("found")) {
-				proxy.fireEvent("found", res);
+			if (proxy.hasListeners("enumerated")) {
+				proxy.fireEvent("enumerated", res);
 			}
-			if (onLoadCallback != null)
-				onLoadCallback.call(getKrollObject(), res);
+			if (onEnumeratedCallback != null)
+				onEnumeratedCallback.call(getKrollObject(), res);
 		}
 	}
-
-	private static final String TF = "TINKERFORGE_ENDPOINT";
-
-	private String ip = "localhost";
-	private int port = 4223;
-	private KrollFunction onLoadCallback;
-	private IPConnection ipcon;
-	final KrollProxy proxy;
-	private HashMap<String, KrollDict> devices;
-	TiProperties props;
 
 	public ConnectionProxy(KrollProxy proxy) {
 		super();
@@ -94,40 +97,26 @@ public class ConnectionProxy extends KrollProxy {
 
 	}
 
-	// Handle creation options
 	@Override
-	public void handleCreationDict(KrollDict options) {
-		super.handleCreationDict(options);
-		if (options.containsKeyAndNotNull("ip")) {
-			ip = options.getString("ip");
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		if (args.length == 0) {
+			Log.e(LCAT, " paramter aspected");
+			return;
 		}
-		if (options.containsKeyAndNotNull("port")) {
-			port = options.getInt("port");
-		} else if (ip == null) {
-			getCacheEndpointFromProps();
+		if (!(args[0] instanceof String)) {
+			Log.e(LCAT, "endpoint must be a String");
+			return;
+		} else {
+			String[] parts = ((String) args[1]).split(":");
+			if (parts != null) {
+				this.ip = parts[0];
+				this.port = Integer.parseInt(parts[1]);
+			}
 		}
-		if (options.containsKeyAndNotNull("onload")) {
-			Object o = options.get("onload");
-			if (o instanceof KrollFunction)
-				onLoadCallback = (KrollFunction) o;
+		if (args.length > 1 && args[1] != null
+				&& args[1] instanceof KrollFunction) {
+			onConnectedCallback = (KrollFunction) args[1];
 		}
-		connect();
-	}
-
-	private void cacheEndpointToProps() {
-		this.props.setString(TF, this.ip + ":" + this.port);
-	}
-
-	private void getCacheEndpointFromProps() {
-		String ep = this.props.getString(TF, this.ip + ":" + this.port);
-		String[] parts = ep.split(":");
-		if (parts != null) {
-			this.ip = parts[0];
-			this.port = Integer.parseInt(parts[1]);
-		}
-	}
-
-	private void connect() {
 		ipcon = new IPConnection();
 		try {
 			ipcon.connect(ip, port);
@@ -138,17 +127,13 @@ public class ConnectionProxy extends KrollProxy {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		cacheEndpointToProps();
-
 		ipcon.addConnectedListener(new ConnectedHandler());
 		ipcon.addEnumerateListener(new EnumeratedHandler());
-
 		try {
 			ipcon.enumerate();
 		} catch (NotConnectedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	@Kroll.method
@@ -159,4 +144,5 @@ public class ConnectionProxy extends KrollProxy {
 			e.printStackTrace();
 		}
 	}
+
 }

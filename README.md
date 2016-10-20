@@ -26,7 +26,7 @@ var IPconn = TF.createConnection(ENDPOINT);
 The IPconn has to events:
 
 ```javascript
-IPconn.addEventListener("found",function(e) {
+IPconn.addEventListener("enumerated",function(e) {
 	// every bricklet send an event, maybe you can collect in an array
 	console.log(e)
 });
