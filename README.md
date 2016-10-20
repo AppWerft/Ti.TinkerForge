@@ -21,18 +21,25 @@ First we have to connect to Tinkerforge and enumerate all connected bricklets:
 ```javascript
 var TF = require("ti.tinkerforge");
 var ENDPOINT = "192.168.3.4:4223";
-var IPconnection = TF.createConnection(ENDPOINT);
+var IPconn = TF.createConnection(ENDPOINT);
+```
+The IPconn has to events:
 
-IPconnection.addEventListener("found",function(e) {
+```javascript
+IPconn.addEventListener("found",function(e) {
 	// every bricklet send an event, maybe you can collect in an array
 	console.log(e)
 });
+IPconn.addEventListener("connected",function(e) {
+	console.log(e)
+});
+
 ```
-Alternatively you can a second parameter (after endpoint) as callback.
+For the second event you can alternatively listen as second parameter in creator:
  ```javascript
 var TF = require("ti.tinkerforge");
 var ENDPOINT = "192.168.3.4:4223";
-var IPconnection = TF.createConnection(ENDPOINT,function(){
+var IPconn = TF.createConnection(ENDPOINT,function() {
 });
 ```
 The connection enumerator has seven parameters:
