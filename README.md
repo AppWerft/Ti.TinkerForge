@@ -35,6 +35,10 @@ IPconn.addEventListener("connected",function(e) {
 });
 
 ```
+If you need authentication you can use a property in tiapp.xml:
+```xml
+<property name="TIFORGE_SECRET" type="string">Rumpelstilzchen</property>
+```
 For the second event you can alternatively listen as second parameter in creator:
  ```javascript
 var TF = require("ti.tinkerforge");

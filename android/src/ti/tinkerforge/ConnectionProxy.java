@@ -50,12 +50,15 @@ public class ConnectionProxy extends KrollProxy {
 			case IPConnection.CONNECT_REASON_AUTO_RECONNECT:
 				break;
 			}
-
-			try {
-				ipcon.authenticate("");
-			} catch (TinkerforgeException e) {
-				return;
-			}
+			TiProperties appProperties = TiApplication.getInstance()
+					.getAppProperties();
+			if (appProperties.hasProperty("TIFORGE_SECRET"))
+				try {
+					ipcon.authenticate(appProperties.getString(
+							"TIFORGE_SECRET", ""));
+				} catch (TinkerforgeException e) {
+					return;
+				}
 		}
 	}
 
