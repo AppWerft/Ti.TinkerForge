@@ -53,17 +53,16 @@ With this simple bricklet we can measure the temperature. We have simple getter,
 ###Simple getter:
 ```javascript
 var TF = require("ti.tinkerforge");
-var IpConn = TF.createConnection();
-var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
+var BrickletTemperature = TF.createBrickletTemperatur(UID);
 console.log(BrickletTemperature.getTemperature());
-IpConn.disconnect();
+BrickletTemperature.release();
 ```
 
 ###Periodical
 ```javascript
 var TF = require("ti.tinkerforge");
-var IpConn = TF.createConnection();
-var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
+
+var BrickletTemperature = TF.createBrickletTemperatur(UID);
 BrickletTemperature.setInterval(function(e){
 	console.log(e);
 }, 1000);
@@ -72,8 +71,7 @@ BrickletTemperature.setInterval(function(e){
 ###Treshold
 ```javascript
 var TF = require("ti.tinkerforge");
-var IpConn = TF.createConnection();
-var BrickletTemperature = TF.createBrickletTemperatur(UID, IpConn);
+var BrickletTemperature = TF.createBrickletTemperatur(UID);
 // Get threshold callbacks with a debounce time of 10 seconds (10000ms)
 BrickletTemperature.setDebouncePeriod(10000);
 BrickletTemperature.setTemperatureThreshold('>30',function(e){
@@ -85,8 +83,7 @@ BrickletTemperature.setTemperatureThreshold('>30',function(e){
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_rgb_led_tilted_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
-var IpConn = TF.createConnection();
-var BrickletRGBLED = TF.createBrickletTemperatur(UID, IpConn);
+var BrickletRGBLED = TF.createBrickletTemperatur(UID);
 BrickletRGBLED.setRGBValue("#FF0000");
 var rgb = BrickletRGBLED.getRGBValue();
 console.log(rgb);
@@ -96,8 +93,7 @@ console.log(rgb);
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_ssr_w_ssr_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
-var IpConn = TF.createConnection();
-var BrickletSolidStateRelay = TF.createBrickletSolidStateRelay(UID, IpConn);
+var BrickletSolidStateRelay = TF.createBrickletSolidStateRelay(UID;
 BrickletSolidStateRelay.setState(true);
 setTimeout(function(){
 	BrickletSolidStateRelay.setState(false);
