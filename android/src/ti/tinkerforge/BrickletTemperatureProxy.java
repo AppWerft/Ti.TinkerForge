@@ -28,7 +28,8 @@ import com.tinkerforge.TinkerforgeException;
 
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
-public class BrickletTemperature extends KrollProxy {
+public class BrickletTemperatureProxy extends KrollProxy {
+
 	private final class ConnectedHandler implements
 			IPConnection.ConnectedListener {
 		public void connected(short connectReason) {
@@ -67,11 +68,11 @@ public class BrickletTemperature extends KrollProxy {
 	private int port = 4223;
 	private KrollFunction onLoadCallback;
 	private IPConnection ipcon;
-	final KrollProxy proxy;
+	public KrollProxy proxy = null;
 	private HashMap<String, KrollDict> devices;
 	TiProperties props;
 
-	public BrickletTemperature(KrollProxy proxy) {
+	public BrickletTemperatureProxy(KrollProxy proxy) {
 		super();
 		this.proxy = proxy;
 		this.props = TiApplication.getInstance().getAppProperties();
@@ -100,7 +101,6 @@ public class BrickletTemperature extends KrollProxy {
 	}
 
 	private void cacheEndpointToProps(String ep) {
-
 		this.props.setString(TF, this.ip + ":" + this.port);
 	}
 
@@ -124,15 +124,9 @@ public class BrickletTemperature extends KrollProxy {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		cacheEndpointToProps();
+		cacheEndpointToProps(null);
 		// Register enumerate listener and print incoming information
-		ipcon.addEnumerateListener(new EnumeratedHandler());
 		ipcon.addConnectedListener(new ConnectedHandler());
-		try {
-			ipcon.enumerate();
-		} catch (NotConnectedException e) {
-			e.printStackTrace();
-		}
 
 	}
 

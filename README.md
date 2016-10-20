@@ -11,8 +11,8 @@ The TinkerForge system is a collection of sensor and actors you can access with 
 First we have to connect to Tinkerforge and enumerate all connected bricklets:
 ```javascript
 var TF = require("ti.tinkerforge");
-
-var connection = TF.createConnection("192.168.3.4:4223");
+var ENDPOINT = "192.168.3.4:4223";
+var connection = TF.createConnection(ENDPOINT);
 The last endpoint (combination of host and port) will cached in properties. Therefore you can dismiss in next requests.
 
 connection.addEventListener("found",function(e) {
@@ -45,7 +45,6 @@ Type of enumeration.
 
 Now we can communicate with bricklets. All bricklets have the same host/port, but different uid. Therefore you have to request the uids with enumerate. 
 
-
 ##BrickletTemperature
 With this simple bricklet we can measure the temperature. We have simple getter, a periodically "getter" and a  treshold.
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_temperature_tilted_600.jpg" width=400/>
@@ -53,7 +52,7 @@ With this simple bricklet we can measure the temperature. We have simple getter,
 ###Simple getter:
 ```javascript
 var TF = require("ti.tinkerforge");
-var BrickletTemperature = TF.createBrickletTemperatur(UID);
+var BrickletTemperature = TF.createBrickletTemperatur(UID,ENDPOINT);
 console.log(BrickletTemperature.getTemperature());
 BrickletTemperature.release();
 ```
@@ -62,7 +61,7 @@ BrickletTemperature.release();
 ```javascript
 var TF = require("ti.tinkerforge");
 
-var BrickletTemperature = TF.createBrickletTemperatur(UID);
+var BrickletTemperature = TF.createBrickletTemperatur(UID,ENDPOINT);
 BrickletTemperature.setInterval(function(e){
 	console.log(e);
 }, 1000);
@@ -71,7 +70,7 @@ BrickletTemperature.setInterval(function(e){
 ###Treshold
 ```javascript
 var TF = require("ti.tinkerforge");
-var BrickletTemperature = TF.createBrickletTemperatur(UID);
+var BrickletTemperature = TF.createBrickletTemperatur(UID,ENDPOINT);
 // Get threshold callbacks with a debounce time of 10 seconds (10000ms)
 BrickletTemperature.setDebouncePeriod(10000);
 BrickletTemperature.setTemperatureThreshold('>30',function(e){
@@ -83,7 +82,7 @@ BrickletTemperature.setTemperatureThreshold('>30',function(e){
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_rgb_led_tilted_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
-var BrickletRGBLED = TF.createBrickletTemperatur(UID);
+var BrickletRGBLED = TF.createBrickletTemperatur(UID,ENDPOINT);
 BrickletRGBLED.setRGBValue("#FF0000");
 var rgb = BrickletRGBLED.getRGBValue();
 console.log(rgb);
@@ -93,7 +92,7 @@ console.log(rgb);
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_ssr_w_ssr_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
-var BrickletSolidStateRelay = TF.createBrickletSolidStateRelay(UID;
+var BrickletSolidStateRelay = TF.createBrickletSolidStateRelay(UID,ENDPOINT);
 BrickletSolidStateRelay.setState(true);
 setTimeout(function(){
 	BrickletSolidStateRelay.setState(false);
