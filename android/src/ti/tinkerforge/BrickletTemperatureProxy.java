@@ -22,6 +22,7 @@ import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
 
 import com.tinkerforge.AlreadyConnectedException;
+import com.tinkerforge.BrickletTemperature;
 import com.tinkerforge.IPConnection;
 import com.tinkerforge.NotConnectedException;
 import com.tinkerforge.TinkerforgeException;
@@ -62,58 +63,60 @@ public class BrickletTemperatureProxy extends KrollProxy {
 
 	// Standard Debugging variables
 	private static final String LCAT = "TiFo";
-	private static final String TF = "TINKERFORGE_ENDPOINT";
-
 	private String ip = "localhost";
 	private int port = 4223;
-	private KrollFunction onLoadCallback;
 	private IPConnection ipcon;
+	private String UID;
 	public KrollProxy proxy = null;
-	private HashMap<String, KrollDict> devices;
-	TiProperties props;
+	private BrickletTemperature bricklet;
 
 	public BrickletTemperatureProxy(KrollProxy proxy) {
 		super();
 		this.proxy = proxy;
-		this.props = TiApplication.getInstance().getAppProperties();
-
 	}
 
-	// Handle creation options
-	@Override
-	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
-		if (args.length == 0) {
-			Log.d(LCAT, "uid is missing");
+	private void readArgs(Object[] args) {
+		if (args.length != 2) {
+			Log.d(LCAT, "two paramters (UID + endpoint) aspected");
 			return;
-		} else if (args.length == 1) {
-			getCacheEndpointFromProps();
-			if (args[0] instanceof String) {
-				String ep = (String) args[0];
-				String[] parts = ep.split(":");
-				if (parts != null) {
-					this.ip = parts[0];
-					this.port = Integer.parseInt(parts[1]);
-				}
-				this.props.setString(TF, this.ip + ":" + this.port);
+		}
+		if (!(args[0] instanceof String)) {
+			Log.d(LCAT, "UID is missing");
+			return;
+		}
+		if (!(args[1] instanceof String)) {
+			Log.d(LCAT, "endpoint is missing");
+			return;
+		}
+
+		if (args[0] instanceof String) {
+			this.UID = (String) args[0];
+		}
+		if (args[1] instanceof String) {
+			String[] parts = ((String) args[1]).split(":");
+			if (parts != null) {
+				this.ip = parts[0];
+				this.port = Integer.parseInt(parts[1]);
 			}
 		}
+	}
+
+	@Override
+	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
+		readArgs(args);
+		connectBricklet();
+		BrickletTemperature bricklet = new BrickletTemperature(UID, ipcon); // Create
+		// device
+		// object
 
 	}
 
-	private void cacheEndpointToProps(String ep) {
-		this.props.setString(TF, this.ip + ":" + this.port);
+	@Kroll.method
+	public void getTemperature() {
+
 	}
 
-	private void getCacheEndpointFromProps() {
-		String ep = this.props.getString(TF, this.ip + ":" + this.port);
-		String[] parts = ep.split(":");
-		if (parts != null) {
-			this.ip = parts[0];
-			this.port = Integer.parseInt(parts[1]);
-		}
-	}
-
-	private void connect() {
+	private void connectBricklet() {
 		ipcon = new IPConnection();
 		try {
 			ipcon.connect(ip, port);
@@ -124,7 +127,6 @@ public class BrickletTemperatureProxy extends KrollProxy {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		cacheEndpointToProps(null);
 		// Register enumerate listener and print incoming information
 		ipcon.addConnectedListener(new ConnectedHandler());
 
