@@ -1,9 +1,7 @@
 #Ti.TinkerForge
 
-
-<img qlign="right" src="http://download.tinkerforge.com/press/media/brick_stack_back.jpg" width=200/>Titanium module for communication with [TinkerForge system](http://tinkerforge.com).
-The TinkerForge system is a collection of sensor and actors you can access with a simple API.
-
+<img src="http://download.tinkerforge.com/press/media/brick_stack_back.jpg" width=200/>
+TinkerForge is a system of open source hardware building blocks that allows you to combine sensor and actuator blocks by plug and play. You can create your individual hardware system by choosing the necessary building blocks for your project and combine it with other home automation products. There are many blocks available e.g for temperature, humidity or air pressure measurement as well as for I/O, LCDs and motor control. 
 
 ##Usage
 
