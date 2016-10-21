@@ -1,6 +1,6 @@
 #Ti.TinkerForge
 
-<img src="http://download.tinkerforge.com/press/media/brick_stack_back.jpg" width=200/>
+<img src="http://download.tinkerforge.com/press/media/brick_stack_back.jpg" width=280/>
 TinkerForge is a system of open source hardware building blocks that allows you to combine sensor and actuator blocks by plug and play. You can create your individual hardware system by choosing the necessary building blocks for your project and combine it with other home automation products. There are many blocks available e.g for temperature, humidity or air pressure measurement as well as for I/O, LCDs and motor control. 
 
 ##Usage

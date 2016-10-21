@@ -45,20 +45,22 @@ public class ConnectionProxy extends KrollProxy {
 		public void connected(short connectReason) {
 			switch (connectReason) {
 			case IPConnection.CONNECT_REASON_REQUEST:
-				break;
-
+				if (obConnected)
+					break;
 			case IPConnection.CONNECT_REASON_AUTO_RECONNECT:
 				break;
 			}
+
 			TiProperties appProperties = TiApplication.getInstance()
 					.getAppProperties();
-			if (appProperties.hasProperty("TIFORGE_SECRET"))
+			if (appProperties.hasProperty("TIFORGE_SECRET")) {
 				try {
 					ipcon.authenticate(appProperties.getString(
 							"TIFORGE_SECRET", ""));
 				} catch (TinkerforgeException e) {
 					return;
 				}
+			}
 		}
 	}
 
