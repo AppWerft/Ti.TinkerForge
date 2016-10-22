@@ -71,7 +71,7 @@ Now we have all uids from all bricklets and we can communicate with bricklets.
 All bricklets have the same host/port, but different uid. Therefore address the bricklets by UUID. 
 
 ##BrickletTemperature
-With this simple bricklet we can measure the temperature. We have simple getter, a periodically "getter" and a  treshold.
+The Temperature Bricklet can be used to extend the features of Bricks by the capability to measure temperature. The measured temperature can be read out in °C. With configurable events it is possible to react on changing temperatures without polling.
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_temperature_tilted_600.jpg" width=400/>
 
 ###Simple getter:
@@ -106,6 +106,7 @@ BrickletTemperature.setTemperatureThreshold('>30',function(e){
 ```
 
 ##RGBLED
+The RGB LED Bricklet can be used to extend the features of Bricks with the capability to control a RGB LED. Each of the three channels (red, green, blue) can be controlled individually with 8 bit resolution.
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_rgb_led_tilted_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
