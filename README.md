@@ -128,6 +128,20 @@ setTimeout(function(){
 	}, 10000);
 
 ```
+##BrickletColor
+<img src="https://www.tinkerforge.com/de/shop/bricklets/color-bricklet.html#" width=400 />
+The Color Bricklet can be used to extend the features of Bricks with the capability to measure color, color temperature and illuminance of a light source. Thus the Bricklet can measure the color of an object via its reflected light. To create a defined illumination and color temperature the Bricklet is equipped with a API switchable LED.
+```javascript
+var TF = require("ti.tinkerforge");
+var IPConn = TF.createConnection(ENDPOINT);
+var BrickletColor = TF.createBrickletColor(UID,IPConn);
+var color = BrickletColor.getColor();
+console.log("red="+color.r+ " green="+color.g+ " blue="+color.blue+ " clear="+color.c);
+BrickletColor.lightOn();
+BrickletColor.lightOff();
+BrickletColor.getIlluminance();
+BrickletColor.getColorTemperature(); //Returns the color temperature in Kelvin.
+```
 
 
 
