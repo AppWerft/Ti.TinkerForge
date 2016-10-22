@@ -118,6 +118,11 @@ console.log(rgb);
 });
 ```
 ##BrickletSolidStateRelay
+The Solid State Relay Bricklet can be used to extend Bricks by the possibility to switch solid state relays (SSR).
+
+With solid state relays large loads can be switched while being galvanically isolated. Mechanical relays can create switching sparks and other interferences. Solid state relays do not. Furthermore solid state relays are wearless and allow higher switching frequencies.
+
+The maximum switching capacity depends on the connected solid state relay, which is controlled by the Solid State Relay Bricklet.
 <img src="http://www.tinkerforge.com/en/doc/_images/Bricklets/bricklet_ssr_w_ssr_350.jpg" width=400 />
 ```javascript
 var TF = require("ti.tinkerforge");
