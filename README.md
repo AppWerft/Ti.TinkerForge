@@ -49,12 +49,15 @@ If you are connected, you can enumerate:
 ```javascript
 var TF = require("ti.tinkerforge");
 var ENDPOINT = "192.168.3.4:4223";
-var IPconn = TF.createConnection(ENDPOINT,function() {
+var IPconn = TF.createConnection(ENDPOINT,function(e) {
+	if (e.connected) {
+		IPconn.enumerate();
+		IPconn.addEventListener("enumerated",function(e) {
+			console.log(e)
+		});
+	}	
 });
-IPconn.enumerate();
-IPconn.addEventListener("enumerated",function(e) {
-	console.log(e)
-});
+
 ```
 
 The connection enumerator has seven parameters:
