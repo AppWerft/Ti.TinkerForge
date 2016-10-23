@@ -21,29 +21,42 @@ var TF = require("ti.tinkerforge");
 var ENDPOINT = "192.168.3.4:4223";
 var IPconn = TF.createConnection(ENDPOINT);
 ```
-The IPconn has to events:
+For result you can use  an event:
 
 ```javascript
 IPconn.addEventListener("connected",function(e) {
 	console.log(e)
 });
-IPconn.addEventListener("enumerated",function(e) {
-	// every bricklet send an event, maybe you can collect in an array
-	console.log(e)
-});
-
 ```
-If you need authentication you can use a property in tiapp.xml:
-```xml
-<property name="TIFORGE_SECRET" type="string">Rumpelstilzchen</property>
-```
-For the second event you can alternatively listen as second parameter in creator:
+Alternatively  you can listen to the second parameter in creator:
  ```javascript
 var TF = require("ti.tinkerforge");
 var ENDPOINT = "192.168.3.4:4223";
 var IPconn = TF.createConnection(ENDPOINT,function() {
 });
 ```
+
+If you need authentication you can use a property in tiapp.xml:
+```xml
+<property name="TIFORGE_SECRET" type="string">Rumpelstilzchen</property>
+```
+or you use the special format in URI 
+```
+var ENDPOINT = "Rumpelstilzchen:192.168.3.4:4223";
+```
+If you are connected, you can enumerate:
+
+```javascript
+var TF = require("ti.tinkerforge");
+var ENDPOINT = "192.168.3.4:4223";
+var IPconn = TF.createConnection(ENDPOINT,function() {
+});
+IPconn.enumerate();
+IPconn.addEventListener("enumerated",function(e) {
+	console.log(e)
+});
+```
+
 The connection enumerator has seven parameters:
 ####uid: 
 The UID of the device.

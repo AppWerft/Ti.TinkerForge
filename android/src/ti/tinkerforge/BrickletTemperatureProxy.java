@@ -8,63 +8,21 @@
  */
 package ti.tinkerforge;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-
 import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.TiProperties;
 
-import com.tinkerforge.AlreadyConnectedException;
 import com.tinkerforge.BrickletTemperature;
 import com.tinkerforge.IPConnection;
 import com.tinkerforge.NotConnectedException;
-import com.tinkerforge.TinkerforgeException;
+import com.tinkerforge.TimeoutException;
 
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class BrickletTemperatureProxy extends KrollProxy {
-
-	private final class ConnectedHandler implements
-			IPConnection.ConnectedListener {
-		public void connected(short connectReason) {
-			switch (connectReason) {
-			case IPConnection.CONNECT_REASON_REQUEST:
-				System.out.println("Connected by request");
-				break;
-
-			case IPConnection.CONNECT_REASON_AUTO_RECONNECT:
-				System.out.println("Auto-Reconnect");
-				break;
-			}
-
-			// Authenticate first...
-			try {
-				ipcon.authenticate("");
-				System.out.println("Authentication succeeded");
-			} catch (TinkerforgeException e) {
-				System.out.println("Could not authenticate: " + e.getMessage());
-				return;
-			}
-
-			// ...then trigger enumerate
-			try {
-				ipcon.enumerate();
-			} catch (TinkerforgeException e) {
-			}
-		}
-	}
-
-	// Standard Debugging variables
 	private static final String LCAT = "TiFo";
-	private String ip = "localhost";
-	private int port = 4223;
 	private IPConnection ipcon;
 	private String UID;
 	public KrollProxy proxy = null;
@@ -84,60 +42,42 @@ public class BrickletTemperatureProxy extends KrollProxy {
 			Log.d(LCAT, "UID is missing");
 			return;
 		}
-		if (!(args[1] instanceof String)) {
-			Log.d(LCAT, "endpoint is missing");
+		if (!(args[1] instanceof ConnectionProxy)) {
+			Log.d(LCAT, "Connection is missing");
 			return;
 		}
 
 		if (args[0] instanceof String) {
 			this.UID = (String) args[0];
 		}
-		if (args[1] instanceof String) {
-			String[] parts = ((String) args[1]).split(":");
-			if (parts != null) {
-				this.ip = parts[0];
-				this.port = Integer.parseInt(parts[1]);
-			}
+		if (args[1] instanceof ConnectionProxy) {
+			ipcon = ((ConnectionProxy) args[1]).getConnection();
 		}
 	}
 
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		readArgs(args);
-		connectBricklet();
-		BrickletTemperature bricklet = new BrickletTemperature(UID, ipcon); // Create
-		// device
-		// object
+
+		BrickletTemperature bricklet = new BrickletTemperature(UID, ipcon);
 
 	}
 
 	@Kroll.method
-	public void getTemperature() {
-
-	}
-
-	private void connectBricklet() {
-		ipcon = new IPConnection();
+	public KrollDict getTemperature() {
+		KrollDict res = new KrollDict();
 		try {
-			ipcon.connect(ip, port);
-		} catch (UnknownHostException e) {
+			res.put("ok", true);
+			res.put("data", bricklet.getTemperature());
+			return res;
+		} catch (TimeoutException e) {
+			res.put("error", e.getMessage());
 			e.printStackTrace();
-		} catch (AlreadyConnectedException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		// Register enumerate listener and print incoming information
-		ipcon.addConnectedListener(new ConnectedHandler());
-
-	}
-
-	@Kroll.method
-	public void disconnect() {
-		try {
-			this.ipcon.disconnect();
+			return res;
 		} catch (NotConnectedException e) {
 			e.printStackTrace();
+			res.put("error", e.getMessage());
+			return res;
 		}
 	}
 }

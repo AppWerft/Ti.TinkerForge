@@ -40,6 +40,10 @@ public class ConnectionProxy extends KrollProxy {
 	private HashMap<String, KrollDict> devices;
 	TiProperties props;
 
+	public IPConnection getConnection() {
+		return this.ipcon;
+	}
+
 	private final class ConnectedHandler implements
 			IPConnection.ConnectedListener {
 		public void connected(short connectReason) {
