@@ -34,7 +34,7 @@ public class ConnectionProxy extends KrollProxy {
 	private int port = 4223;
 	private KrollFunction onEnumeratedCallback;
 	private KrollFunction onConnectedCallback;
-	private IPConnection ipcon;
+	public IPConnection ipcon;
 	final KrollProxy proxy;
 	final public String LCAT = "TiFo 🚧";
 	private HashMap<String, KrollDict> devices;
@@ -47,14 +47,19 @@ public class ConnectionProxy extends KrollProxy {
 	private final class ConnectedHandler implements
 			IPConnection.ConnectedListener {
 		public void connected(short connectReason) {
+			KrollDict res = new KrollDict();
 			switch (connectReason) {
 			case IPConnection.CONNECT_REASON_REQUEST:
-				if (obConnected)
-					break;
+				res.put("reason", IPConnection.CONNECT_REASON_REQUEST);
+				break;
 			case IPConnection.CONNECT_REASON_AUTO_RECONNECT:
+				res.put("reason", IPConnection.CONNECT_REASON_AUTO_RECONNECT);
 				break;
 			}
-
+			if (onConnectedCallback != null)
+				onConnectedCallback.call(getKrollObject(), res);
+			if (proxy.hasListeners("connected"))
+				proxy.fireEvent("conencted", res);
 			TiProperties appProperties = TiApplication.getInstance()
 					.getAppProperties();
 			if (appProperties.hasProperty("TIFORGE_SECRET")) {
@@ -138,6 +143,11 @@ public class ConnectionProxy extends KrollProxy {
 		}
 		ipcon.addConnectedListener(new ConnectedHandler());
 		ipcon.addEnumerateListener(new EnumeratedHandler());
+
+	}
+
+	@Kroll.method
+	public void enumerate() {
 		try {
 			ipcon.enumerate();
 		} catch (NotConnectedException e) {
