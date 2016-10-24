@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APPID=de.appwerft.airlino
+APPID=ti.tinkerforge
 VERSION=1.0.0
 
 #cp android/assets/* iphone/
