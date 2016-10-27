@@ -21,32 +21,55 @@ import org.appcelerator.kroll.common.Log;
 import org.appcelerator.titanium.TiApplication;
 import org.appcelerator.titanium.TiProperties;
 
+import android.app.Activity;
+
 import com.tinkerforge.AlreadyConnectedException;
 import com.tinkerforge.IPConnection;
+import com.tinkerforge.IPConnection.ConnectedListener;
+import com.tinkerforge.IPConnection.EnumerateListener;
 import com.tinkerforge.NotConnectedException;
 import com.tinkerforge.TinkerforgeException;
 
-// This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class ConnectionProxy extends KrollProxy {
-
 	private String ip = "localhost";
 	private int port = 4223;
 	private KrollFunction onEnumeratedCallback;
 	private KrollFunction onConnectedCallback;
 	public IPConnection ipcon;
-	final KrollProxy proxy;
+	private ConnectedListener connectedListener = new ConnectedHandler();;
+	private EnumerateListener enumerateListener = new EnumerateHandler();
 	final public String LCAT = "TiFo 🚧";
-	private HashMap<String, KrollDict> devices;
+	private KrollDict devices = new KrollDict();
 	TiProperties props;
+
+	public ConnectionProxy() {
+		super();
+		this.props = TiApplication.getInstance().getAppProperties();
+	}
 
 	public IPConnection getConnection() {
 		return this.ipcon;
 	}
 
+	@Override
+	public void onStop(Activity activity) {
+		try {
+			ipcon.removeConnectedListener(connectedListener);
+			ipcon.removeEnumerateListener(enumerateListener);
+			ipcon.disconnect();
+			Log.d(LCAT, "disconnect >>>>>");
+		} catch (NotConnectedException e) {
+			e.printStackTrace();
+		}
+		super.onStop(activity);
+	}
+
 	private final class ConnectedHandler implements
 			IPConnection.ConnectedListener {
+
 		public void connected(short connectReason) {
+			Log.d(LCAT, "inside ConnectedListener Reason=" + connectReason);
 			KrollDict res = new KrollDict();
 			switch (connectReason) {
 			case IPConnection.CONNECT_REASON_REQUEST:
@@ -58,99 +81,105 @@ public class ConnectionProxy extends KrollProxy {
 			}
 			if (onConnectedCallback != null)
 				onConnectedCallback.call(getKrollObject(), res);
-			if (proxy.hasListeners("connected"))
-				proxy.fireEvent("conencted", res);
+			else
+				Log.w(LCAT, "no callback for connected");
+			if (hasListeners("connected"))
+				fireEvent("connected", res);
+			else
+				Log.w(LCAT, "no listener for connected");
 			TiProperties appProperties = TiApplication.getInstance()
 					.getAppProperties();
-			if (appProperties.hasProperty("TIFORGE_SECRET")) {
-				try {
-					ipcon.authenticate(appProperties.getString(
-							"TIFORGE_SECRET", ""));
-				} catch (TinkerforgeException e) {
-					return;
-				}
-			}
+			/*
+			 * if (appProperties.hasProperty("TIFORGE_SECRET")) { try {
+			 * ipcon.authenticate(appProperties.getString( "TIFORGE_SECRET",
+			 * "")); } catch (TinkerforgeException e) { return; } }
+			 */
 		}
 	}
 
-	private final class EnumeratedHandler implements
+	private final class EnumerateHandler implements
 			IPConnection.EnumerateListener {
 		public void enumerate(String uid, String connectedUid, char position,
 				short[] hardwareVersion, short[] firmwareVersion,
 				int deviceIdentifier, short enumerationType) {
-
+			Log.d(LCAT, uid);
 			KrollDict res = new KrollDict();
 			res.put("UID", uid);
 			res.put("Enumeration Type", enumerationType);
 			if (enumerationType == IPConnection.ENUMERATION_TYPE_DISCONNECTED) {
-				res.put("connected", IPConnection.ENUMERATION_TYPE_DISCONNECTED);
+				res.put("disconnected", ""
+						+ IPConnection.ENUMERATION_TYPE_DISCONNECTED);
 
 			} else {
 				res.put("connected", IPConnection.ENUMERATION_TYPE_CONNECTED);
-				res.put("connectedUID", connectedUid);
+				// res.put("connectedUID", connectedUid);
 				res.put("position", position);
 				res.put("hardwareVersion", hardwareVersion[0] + "."
 						+ hardwareVersion[1] + "." + hardwareVersion[2]);
-				res.put("firmwareVersion", firmwareVersion[0] + "."
-						+ firmwareVersion[1] + "." + firmwareVersion[2]);
-				res.put("deviceIdentifier ", deviceIdentifier);
+				// res.put("firmwareVersion", firmwareVersion[0] + "."
+				// + firmwareVersion[1] + "." + firmwareVersion[2]);
+				// / res.put("deviceIdentifier ", deviceIdentifier);
 			}
 			devices.put(uid, res);
-			if (proxy.hasListeners("enumerated")) {
-				proxy.fireEvent("enumerated", res);
+			if (hasListeners("enumerated")) {
+				fireEvent("enumerated", res);
 			}
 			if (onEnumeratedCallback != null)
 				onEnumeratedCallback.call(getKrollObject(), res);
 		}
 	}
 
-	public ConnectionProxy(KrollProxy proxy) {
-		super();
-		this.proxy = proxy;
-		this.props = TiApplication.getInstance().getAppProperties();
-
-	}
-
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
 		if (args.length == 0) {
-			Log.e(LCAT, " paramter aspected");
+			Log.e(LCAT, " parameter aspected");
 			return;
 		}
 		if (!(args[0] instanceof String)) {
 			Log.e(LCAT, "endpoint must be a String");
 			return;
 		} else {
-			String[] parts = ((String) args[1]).split(":");
+			String endpoint = (String) args[0];
+			Log.d(LCAT, (String) endpoint);
+			String[] parts = endpoint.split(":");
 			if (parts != null) {
 				this.ip = parts[0];
 				this.port = Integer.parseInt(parts[1]);
-			}
+			} else
+				Log.e(LCAT, "parts = null");
 		}
 		if (args.length > 1 && args[1] != null
 				&& args[1] instanceof KrollFunction) {
 			onConnectedCallback = (KrollFunction) args[1];
 		}
-		ipcon = new IPConnection();
+		this.ipcon = new IPConnection();
+
+		this.ipcon.addConnectedListener(connectedListener);
 		try {
-			ipcon.connect(ip, port);
+			Log.d(LCAT, "try to connect with:  " + ip + " : " + port);
+			this.ipcon.connect(ip, port);
 		} catch (UnknownHostException e) {
+			Log.e(LCAT, e.toString());
 			e.printStackTrace();
 		} catch (AlreadyConnectedException e) {
+			Log.e(LCAT, e.toString());
 			e.printStackTrace();
 		} catch (IOException e) {
+			Log.e(LCAT, e.toString());
 			e.printStackTrace();
 		}
-		ipcon.addConnectedListener(new ConnectedHandler());
-		ipcon.addEnumerateListener(new EnumeratedHandler());
 
 	}
 
 	@Kroll.method
 	public void enumerate() {
 		try {
+			Log.d(LCAT, "start enumerating");
+			ipcon.addEnumerateListener(enumerateListener);
+			Log.d(LCAT, "start enumeratingListener");
 			ipcon.enumerate();
 		} catch (NotConnectedException e) {
+			Log.e(LCAT, e.toString());
 			e.printStackTrace();
 		}
 	}
@@ -163,5 +192,4 @@ public class ConnectionProxy extends KrollProxy {
 			e.printStackTrace();
 		}
 	}
-
 }
