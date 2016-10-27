@@ -18,7 +18,7 @@ import com.tinkerforge.IPConnection;
 @Kroll.module(name = "Tinkerforge", id = "ti.tinkerforge")
 public class TinkerforgeModule extends KrollModule {
 
-	private static final String LCAT = "TiFo";
+	public static final String LCAT = "TiFo 🚧";
 	@Kroll.constant
 	public static final int CONNECT_REASON_REQUEST = IPConnection.CONNECT_REASON_REQUEST;
 	@Kroll.constant

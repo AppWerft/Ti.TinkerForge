@@ -45,7 +45,6 @@ public class ConnectionProxy extends KrollProxy {
 
 	public ConnectionProxy() {
 		super();
-		this.props = TiApplication.getInstance().getAppProperties();
 	}
 
 	public IPConnection getConnection() {
@@ -69,7 +68,6 @@ public class ConnectionProxy extends KrollProxy {
 			IPConnection.ConnectedListener {
 
 		public void connected(short connectReason) {
-			Log.d(LCAT, "inside ConnectedListener Reason=" + connectReason);
 			KrollDict res = new KrollDict();
 			switch (connectReason) {
 			case IPConnection.CONNECT_REASON_REQUEST:
@@ -81,14 +79,10 @@ public class ConnectionProxy extends KrollProxy {
 			}
 			if (onConnectedCallback != null)
 				onConnectedCallback.call(getKrollObject(), res);
-			else
-				Log.w(LCAT, "no callback for connected");
-			if (hasListeners("connected"))
+			else if (hasListeners("connected"))
 				fireEvent("connected", res);
 			else
-				Log.w(LCAT, "no listener for connected");
-			TiProperties appProperties = TiApplication.getInstance()
-					.getAppProperties();
+				Log.w(LCAT, "no listener/callback for connected");
 			/*
 			 * if (appProperties.hasProperty("TIFORGE_SECRET")) { try {
 			 * ipcon.authenticate(appProperties.getString( "TIFORGE_SECRET",
@@ -102,29 +96,27 @@ public class ConnectionProxy extends KrollProxy {
 		public void enumerate(String uid, String connectedUid, char position,
 				short[] hardwareVersion, short[] firmwareVersion,
 				int deviceIdentifier, short enumerationType) {
-			Log.d(LCAT, uid);
 			KrollDict res = new KrollDict();
-			res.put("UID", uid);
-			res.put("Enumeration Type", enumerationType);
+			KrollDict b = new KrollDict();
+			res.put("bricklet", b);
+			b.put("UID", uid);
+			// res.put("Enumeration Type", enumerationType);
 			if (enumerationType == IPConnection.ENUMERATION_TYPE_DISCONNECTED) {
-				res.put("disconnected", ""
+				b.put("disconnected", ""
 						+ IPConnection.ENUMERATION_TYPE_DISCONNECTED);
-
 			} else {
-				res.put("connected", IPConnection.ENUMERATION_TYPE_CONNECTED);
-				// res.put("connectedUID", connectedUid);
-				res.put("position", position);
-				res.put("hardwareVersion", hardwareVersion[0] + "."
+				b.put("connectedUID", connectedUid);
+				b.put("position", "pos_" + position);
+				b.put("hardwareVersion", hardwareVersion[0] + "."
 						+ hardwareVersion[1] + "." + hardwareVersion[2]);
-				// res.put("firmwareVersion", firmwareVersion[0] + "."
-				// + firmwareVersion[1] + "." + firmwareVersion[2]);
-				// / res.put("deviceIdentifier ", deviceIdentifier);
+				b.put("firmwareVersion", firmwareVersion[0] + "."
+						+ firmwareVersion[1] + "." + firmwareVersion[2]);
+				b.put("deviceIdentifier ", deviceIdentifier);
 			}
-			devices.put(uid, res);
+			// devices.put(uid, res);
 			if (hasListeners("enumerated")) {
 				fireEvent("enumerated", res);
-			}
-			if (onEnumeratedCallback != null)
+			} else if (onEnumeratedCallback != null)
 				onEnumeratedCallback.call(getKrollObject(), res);
 		}
 	}
@@ -174,9 +166,7 @@ public class ConnectionProxy extends KrollProxy {
 	@Kroll.method
 	public void enumerate() {
 		try {
-			Log.d(LCAT, "start enumerating");
 			ipcon.addEnumerateListener(enumerateListener);
-			Log.d(LCAT, "start enumeratingListener");
 			ipcon.enumerate();
 		} catch (NotConnectedException e) {
 			Log.e(LCAT, e.toString());

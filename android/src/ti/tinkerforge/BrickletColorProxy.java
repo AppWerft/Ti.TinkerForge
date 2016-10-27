@@ -14,61 +14,43 @@ import org.appcelerator.kroll.KrollProxy;
 import org.appcelerator.kroll.annotations.Kroll;
 import org.appcelerator.kroll.common.Log;
 
-import com.tinkerforge.BrickletTemperature;
-import com.tinkerforge.IPConnection;
+import com.tinkerforge.BrickletColor;
 import com.tinkerforge.NotConnectedException;
 import com.tinkerforge.TimeoutException;
 
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class BrickletColorProxy extends KrollProxy {
-	private static final String LCAT = "TiFo";
-	private IPConnection ipcon;
-	private String UID;
-	public KrollProxy proxy = null;
-	private BrickletTemperature bricklet;
+	private static final String LCAT = TinkerforgeModule.LCAT;
+	private BrickletColor bColor;
+	private BrickletUri brickletUri;
 
-	public BrickletColorProxy(KrollProxy proxy) {
+	public BrickletColorProxy() {
 		super();
-		this.proxy = proxy;
-	}
-
-	private void readArgs(Object[] args) {
-		if (args.length != 2) {
-			Log.d(LCAT, "two paramters (UID + endpoint) aspected");
-			return;
-		}
-		if (!(args[0] instanceof String)) {
-			Log.d(LCAT, "UID is missing");
-			return;
-		}
-		if (!(args[1] instanceof ConnectionProxy)) {
-			Log.d(LCAT, "Connection is missing");
-			return;
-		}
-
-		if (args[0] instanceof String) {
-			this.UID = (String) args[0];
-		}
-		if (args[1] instanceof ConnectionProxy) {
-			ipcon = ((ConnectionProxy) args[1]).getConnection();
-		}
 	}
 
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
-		readArgs(args);
-
-		BrickletTemperature bricklet = new BrickletTemperature(UID, ipcon);
+		brickletUri = new BrickletUri(args);
+		bColor = new BrickletColor(brickletUri.UID, brickletUri.ipConn);
+		Log.d(LCAT, bColor.toString());
 
 	}
 
 	@Kroll.method
-	public KrollDict getTemperature() {
+	public KrollDict getColor() {
 		KrollDict res = new KrollDict();
 		try {
+			BrickletColor.Color color = bColor.getColor();
+			;
+			res.put("color", String.format("#%06X",
+					(0xFFFFFF & android.graphics.Color.rgb(color.r, color.g,
+							color.b))));
 			res.put("ok", true);
-			res.put("data", bricklet.getTemperature());
+			res.put("c", color.c);
+			res.put("r", color.r);
+			res.put("g", color.g);
+			res.put("b", color.b);
 			return res;
 		} catch (TimeoutException e) {
 			res.put("error", e.getMessage());

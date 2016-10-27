@@ -22,45 +22,20 @@ import com.tinkerforge.TimeoutException;
 // This proxy can be created by calling Tinkerforge.createExample({message: "hello world"})
 @Kroll.proxy(creatableInModule = TinkerforgeModule.class)
 public class BrickletTemperatureProxy extends KrollProxy {
-	private static final String LCAT = "TiFo";
-	private IPConnection ipcon;
-	private String UID;
+	private static final String LCAT = TinkerforgeModule.LCAT;
 	public KrollProxy proxy = null;
 	private BrickletTemperature bricklet;
+	private BrickletUri brickletUri;
 
 	public BrickletTemperatureProxy(KrollProxy proxy) {
 		super();
 		this.proxy = proxy;
 	}
 
-	private void readArgs(Object[] args) {
-		if (args.length != 2) {
-			Log.d(LCAT, "two paramters (UID + endpoint) aspected");
-			return;
-		}
-		if (!(args[0] instanceof String)) {
-			Log.d(LCAT, "UID is missing");
-			return;
-		}
-		if (!(args[1] instanceof ConnectionProxy)) {
-			Log.d(LCAT, "Connection is missing");
-			return;
-		}
-
-		if (args[0] instanceof String) {
-			this.UID = (String) args[0];
-		}
-		if (args[1] instanceof ConnectionProxy) {
-			ipcon = ((ConnectionProxy) args[1]).getConnection();
-		}
-	}
-
 	@Override
 	public void handleCreationArgs(KrollModule createdInModule, Object[] args) {
-		readArgs(args);
-
-		BrickletTemperature bricklet = new BrickletTemperature(UID, ipcon);
-
+		brickletUri = new BrickletUri(args);
+		bricklet = new BrickletTemperature(brickletUri.UID, brickletUri.ipConn);
 	}
 
 	@Kroll.method
